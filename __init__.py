@@ -18,7 +18,9 @@ from flask_mail import Mail , Message #For Sening emails
 from werkzeug.utils import secure_filename
 import urllib.request
 #itsdangerous module for time token
-from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+
+from itsdangerous import JSONWebSignatureSerializer as Serializer
+
 #Dicebear for temporary profile picture
 from src import Avatar
 #for search function
@@ -36,6 +38,11 @@ from dash import dcc , html
 import plotly.graph_objects as go
 from dash.dependencies import Input, Output
 import Graph
+
+from flask_bootstrap import Bootstrap
+
+
+
 
 #imported files (stuff that are not modules)
 import Forms
@@ -73,7 +80,7 @@ mail = Mail(app)
 #Secret Key Required for sessions
 app.secret_key = "session_key"
 #Time Token Creator = 600 seconds
-s = Serializer(app.secret_key, expires_in=600)
+s = Serializer(app.secret_key)
 
 #For Profile Picture Upload
 PROFILEPIC_UPLOAD_PATH = 'static/images/profilepic'
@@ -83,8 +90,7 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 #For product
 PRODUCTPIC_UPLOAD_PATH = 'static/images/store'
 app.config['UPLOAD_FOLDER_PRODUCT'] = PRODUCTPIC_UPLOAD_PATH
-
-
+bootstrap = Bootstrap(app)
 
 #Limiter for login security
 limiter = Limiter(app, key_func=get_remote_address)
@@ -3852,6 +3858,7 @@ def update_consultation(id):
                 timelist = []
                 datelist = []
                 for key in customer_dict:
+                    idNumber = session["user"]
                     if customer_dict[key].get_us() != idNumber:
                         customer = customer_dict.get(key)
                         customers_list.append(customer)
@@ -4127,9 +4134,16 @@ def Pzfier():
 
 @app.route('/Healthcare')
 def Healthcare():
+
+
+
+    UserName = ""
+    av = ""
+    name = ""
     if "user" in session:
         idNumber = session["user"]
         users_dict ={}
+
         db = shelve.open('user', 'c')
 
         try:
